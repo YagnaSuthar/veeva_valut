@@ -27,7 +27,7 @@ export default function SetupPage() {
 
     setLoading(true);
     try {
-      await authApi.setupAdmin({ name, email, password, role: 'admin' });
+      await authApi.setupAdmin({ name, email, password });
       setSuccess(true);
       setTimeout(() => {
         router.push('/login');
