@@ -1,23 +1,37 @@
 import axios from 'axios';
 import { Interview, InterviewListResponse, Query, User, UserListResponse } from '@/types';
 
-// All backend API calls go through Next.js rewrite /api/backend/* → http://localhost:8000/*
-// The middleware at src/middleware.ts injects the HttpOnly cookie as Bearer token.
-const baseURL = typeof window === 'undefined'
-  ? (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000')
-  : '/api/backend';
+// Standalone Backend URL
+const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 export const api = axios.create({
   baseURL,
-  withCredentials: true,
+  headers: {
+    'ngrok-skip-browser-warning': '1',
+  },
 });
 
-// Redirect to /login on 401, but avoid loops on auth pages
+// Request Interceptor: Attach JWT token from LocalStorage to outgoing requests
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response Interceptor: Automatically redirect to login on 401 Unauthorized
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
         const path = window.location.pathname;
         if (path !== '/login' && path !== '/setup') {
           window.location.href = '/login';
@@ -30,24 +44,27 @@ api.interceptors.response.use(
 
 export const authApi = {
   /**
-   * Login: calls Next.js /api/auth proxy which sets HttpOnly cookie.
+   * Login: calls standalone backend directly, saves JWT in LocalStorage
    */
   login: async (email: string, password: string): Promise<void> => {
-    const res = await axios.post('/api/auth', { email, password });
-    if (!res.data.ok) {
-      throw new Error(res.data.error || 'Login failed');
+    const res = await api.post('/auth/login', { email, password });
+    const data = res.data; // TokenResponse
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('access_token', data.access_token);
     }
   },
 
   /**
-   * Logout: clears the HttpOnly cookie.
+   * Logout: deletes JWT from LocalStorage
    */
   logout: async (): Promise<void> => {
-    await axios.delete('/api/auth');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('access_token');
+    }
   },
 
   /**
-   * Setup initial admin account (one-time).
+   * Setup initial admin account (one-time)
    */
   setupAdmin: async (data: { name: string; email: string; password: string; role?: string }): Promise<User> => {
     const res = await api.post('/auth/setup-admin', data);
@@ -55,7 +72,7 @@ export const authApi = {
   },
 
   /**
-   * Get current authenticated user (token injected by middleware from cookie).
+   * Get current authenticated user details
    */
   me: async (): Promise<User> => {
     const res = await api.get('/auth/me');
