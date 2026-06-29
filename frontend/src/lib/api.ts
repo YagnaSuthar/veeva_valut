@@ -49,7 +49,7 @@ export const authApi = {
   /**
    * Setup initial admin account (one-time).
    */
-  setupAdmin: async (data: { name: string; email: string; password: string }): Promise<User> => {
+  setupAdmin: async (data: { name: string; email: string; password: string; role?: string }): Promise<User> => {
     const res = await api.post('/auth/setup-admin', data);
     return res.data;
   },
