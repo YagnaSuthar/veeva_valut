@@ -30,7 +30,7 @@ export default function AdminInterviewsPage() {
   return (
     <div>
       <div className="admin-page-header">
-        <h1 className="admin-page-title">Manage Interviews</h1>
+        <h1 className="admin-page-title">Manage Interviews Questions</h1>
         <button className="btn btn-primary" onClick={() => setIsCreateModalOpen(true)}>
           <Plus size={16} style={{ marginRight: '0.5rem' }} /> Create Interview
         </button>

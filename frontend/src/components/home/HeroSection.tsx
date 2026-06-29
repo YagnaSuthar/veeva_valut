@@ -7,14 +7,14 @@ export default function HeroSection() {
     <section className="hero-section">
       <div className="container hero-container">
         <div className="hero-content">
-          <h1>Ace Your Veeva Vault Interview</h1>
+          <h1>Ace Your Veeva Vault Interview Questions</h1>
           <p>
             The most comprehensive resource for Veeva Vault professionals.
             Explore interview questions, track releases, and stay ahead.
           </p>
           <div className="hero-actions">
             <Link href="/interviews" className="btn btn-accent">
-              Explore Interviews
+              Explore Interview Questions
             </Link>
             <Link href="/interviews" className="btn btn-outline-white">
               Browse Topics

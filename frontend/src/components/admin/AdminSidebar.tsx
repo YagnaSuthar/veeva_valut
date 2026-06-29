@@ -12,7 +12,7 @@ export default function AdminSidebar() {
 
   const navItems = [
     { href: '/', label: 'Return to Site', icon: LayoutDashboard },
-    { href: '/admin/interviews', label: 'Manage Interviews', icon: FileText },
+    { href: '/admin/interviews', label: 'Manage Interview Questions', icon: FileText },
     { href: '/admin/users', label: 'Manage Users', icon: Users },
   ];
 
