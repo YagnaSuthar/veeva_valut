@@ -1,33 +1,52 @@
 'use client';
 
-const RELEASES = [
-  { version: "24R3", date: "Dec 2024", highlights: ["New Vault Objects API", "Lifecycle improvements", "Performance updates"] },
-  { version: "24R2", date: "Aug 2024", highlights: ["Multi-document workflows", "SDK enhancements"] },
-  { version: "24R1", date: "Apr 2024", highlights: ["Spark Messaging GA", "Vault Java SDK v24.1"] },
-];
+import { useReleaseNoteFolders } from '@/hooks/useReleaseNotes';
+import Link from 'next/link';
 
 export default function RecentReleases() {
+  const { data: folders = [], isLoading } = useReleaseNoteFolders();
+  
+  // Show only top 3 releases
+  const recentFolders = folders.slice(0, 3);
+
   return (
     <section>
       <h2 className="section-heading">Recent Veeva Releases</h2>
       
-      <div className="timeline">
-        {RELEASES.map((release) => (
-          <div key={release.version} className="timeline-item">
-            <div className="timeline-marker">
-              <span className="timeline-pill">{release.version}</span>
-              <div className="timeline-line"></div>
+      {isLoading ? (
+        <div style={{ color: 'var(--text-muted)' }}>Loading releases...</div>
+      ) : recentFolders.length === 0 ? (
+        <p style={{ color: 'var(--text-muted)' }}>No releases posted yet.</p>
+      ) : (
+        <div className="timeline">
+          {recentFolders.map((folder: any) => (
+            <div key={folder.id} className="timeline-item">
+              <div className="timeline-marker">
+                <span className="timeline-pill">{folder.name}</span>
+                <div className="timeline-line"></div>
+              </div>
+              <div className="timeline-content">
+                <div className="timeline-date">{folder.description || 'Release Highlights'}</div>
+                <ul className="timeline-list">
+                  {folder.documents?.slice(0, 3).map((doc: any, i: number) => (
+                    <li key={doc.id || i}>
+                      <strong>{doc.title}</strong>: {doc.content}
+                    </li>
+                  ))}
+                  {(!folder.documents || folder.documents.length === 0) && (
+                    <li>No details added yet.</li>
+                  )}
+                </ul>
+              </div>
             </div>
-            <div className="timeline-content">
-              <div className="timeline-date">{release.date}</div>
-              <ul className="timeline-list">
-                {release.highlights.map((h, i) => (
-                  <li key={i}>{h}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
+
+      <div style={{ marginTop: '1.5rem' }}>
+        <Link href="/release-notes" className="interview-link" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+          View All Release Notes &rarr;
+        </Link>
       </div>
     </section>
   );

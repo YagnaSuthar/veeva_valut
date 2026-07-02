@@ -2,10 +2,10 @@
 
 :root {
   /* Palette */
-  --brand-primary: #0052CC; /* deep Veeva blue */
-  --brand-primary-hover: #0043A6;
-  --brand-accent: #00B8D9; /* cyan teal */
-  --brand-accent-hover: #00A3C2;
+  --brand-primary: #fd7e14; /* Orange */
+  --brand-primary-hover: #e06d0b;
+  --brand-accent: #ffc107; /* Yellow/Amber */
+  --brand-accent-hover: #e0a800;
   --brand-dark: #091E42; /* near-black navy */
   --surface-white: #FFFFFF;
   --surface-soft: #F4F5F7; /* off-white backgrounds */

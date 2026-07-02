@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "@/css/globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import Navbar from "@/components/layout/Navbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +26,7 @@ export default function RootLayout({
           <main>
             {children}
           </main>
+          <ToastContainer position="top-center" autoClose={3000} />
         </QueryProvider>
       </body>
     </html>

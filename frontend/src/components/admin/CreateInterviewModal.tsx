@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useCreateInterview } from '@/hooks/useAdmin';
 import { X, Plus, Trash2 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+
 interface CreateInterviewModalProps {
   onClose: () => void;
 }
@@ -43,9 +45,11 @@ export default function CreateInterviewModal({ onClose }: CreateInterviewModalPr
         about: about || null,
         questions: questions.map(q => ({ question_text: q.text, order_index: q.order_index }))
       });
+      toast.success('Interview Questions created successfully!');
       onClose();
     } catch (err) {
       setStatus('error');
+      toast.error('Failed to create interview. Please try again.');
     }
   };
 

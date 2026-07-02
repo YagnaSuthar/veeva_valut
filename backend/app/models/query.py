@@ -11,7 +11,11 @@ class Query(Base, TimestampMixin):
     interview_id = Column(UUID(as_uuid=True), ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False)
     sender_name  = Column(String(255), nullable=False)
     sender_email = Column(String(255), nullable=False)
+    phone_number = Column(String(255), nullable=False, default="")
     message      = Column(Text, nullable=False)
+    image_url    = Column(String(255), nullable=True)
+    file_url     = Column(String(255), nullable=True)
 
     # relationship
     interview = relationship("Interview", back_populates="queries")
+    replies   = relationship("QueryReply", back_populates="query", cascade="all, delete-orphan", order_by="QueryReply.created_at")

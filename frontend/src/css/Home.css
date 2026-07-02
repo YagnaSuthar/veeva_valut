@@ -6,7 +6,7 @@
 
 /* Hero Section */
 .hero-section {
-  background-color: var(--brand-dark);
+  background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
   color: var(--surface-white);
   padding: 4rem 0;
 }
@@ -29,13 +29,15 @@
   font-size: 2.5rem;
   line-height: 1.2;
   margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .hero-content p {
-  color: #A5B2C5;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.125rem;
   margin-bottom: 2rem;
   max-width: 500px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .hero-actions {
@@ -48,10 +50,11 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.15);
   padding: 2rem;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
 }
 
 .stat-item {
@@ -60,14 +63,14 @@
 }
 
 .stat-number {
-  color: var(--brand-accent);
+  color: var(--surface-white);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
 }
 
 .stat-label {
-  color: #A5B2C5;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }

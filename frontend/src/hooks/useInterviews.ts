@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { interviewsApi, queriesApi } from '@/lib/api';
 
 export function useInterviewList(topic?: string) {
@@ -19,8 +19,25 @@ export function useInterview(id: string) {
 }
 
 export function useSubmitQuery() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ interviewId, data }: { interviewId: string, data: any }) => 
-      queriesApi.submit(interviewId, data),
+    mutationFn: ({ interviewId, formData }: { interviewId: string, formData: FormData }) => 
+      queriesApi.submit(interviewId, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interview'] });
+      queryClient.invalidateQueries({ queryKey: ['interviews'] });
+    }
+  });
+}
+
+export function useReplyToQuery() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ queryId, data }: { queryId: string, data: { message: string } }) => 
+      queriesApi.reply(queryId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interview'] });
+      queryClient.invalidateQueries({ queryKey: ['interviews'] });
+    }
   });
 }

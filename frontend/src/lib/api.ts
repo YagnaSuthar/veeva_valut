@@ -118,14 +118,77 @@ export const interviewsApi = {
 export const queriesApi = {
   submit: async (
     interviewId: string,
-    data: { sender_name: string; sender_email: string; message: string }
-  ): Promise<Query> => {
-    const res = await api.post(`/interviews/${interviewId}/queries`, data);
+    formData: FormData
+  ): Promise<any> => {
+    const res = await api.post(`/interviews/${interviewId}/queries`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res.data;
   },
-  list: async (interviewId: string): Promise<Query[]> => {
+  list: async (interviewId: string): Promise<any[]> => {
     const res = await api.get(`/interviews/${interviewId}/queries`);
     return res.data;
+  },
+  reply: async (queryId: string, data: { message: string }): Promise<any> => {
+    const res = await api.post(`/interviews/queries/${queryId}/replies`, data);
+    return res.data;
+  },
+};
+
+export const releaseNotesApi = {
+  listFolders: async (): Promise<any[]> => {
+    const res = await api.get('/release-notes/folders');
+    return res.data;
+  },
+  getFolder: async (id: string): Promise<any> => {
+    const res = await api.get(`/release-notes/folders/${id}`);
+    return res.data;
+  },
+  createFolder: async (data: { name: string; description?: string }): Promise<any> => {
+    const res = await api.post('/release-notes/folders', data);
+    return res.data;
+  },
+  updateFolder: async (id: string, data: { name: string; description?: string }): Promise<any> => {
+    const res = await api.put(`/release-notes/folders/${id}`, data);
+    return res.data;
+  },
+  deleteFolder: async (id: string): Promise<void> => {
+    await api.delete(`/release-notes/folders/${id}`);
+  },
+  createDocument: async (folderId: string, data: { title: string; content: string; file_url?: string }): Promise<any> => {
+    const res = await api.post(`/release-notes/folders/${folderId}/documents`, data);
+    return res.data;
+  },
+  updateDocument: async (id: string, data: { title: string; content: string; file_url?: string }): Promise<any> => {
+    const res = await api.put(`/release-notes/documents/${id}`, data);
+    return res.data;
+  },
+  deleteDocument: async (id: string): Promise<void> => {
+    await api.delete(`/release-notes/documents/${id}`);
+  },
+};
+
+export const articlesApi = {
+  list: async (): Promise<any[]> => {
+    const res = await api.get('/articles');
+    return res.data;
+  },
+  get: async (id: string): Promise<any> => {
+    const res = await api.get(`/articles/${id}`);
+    return res.data;
+  },
+  create: async (data: { title: string; excerpt: string; content: string; topic: string; read_time?: string }): Promise<any> => {
+    const res = await api.post('/articles', data);
+    return res.data;
+  },
+  update: async (id: string, data: { title: string; excerpt: string; content: string; topic: string; read_time?: string }): Promise<any> => {
+    const res = await api.put(`/articles/${id}`, data);
+    return res.data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/articles/${id}`);
   },
 };
 

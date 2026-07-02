@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSubmitQuery } from '@/hooks/useInterviews';
 import { X } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface QueryModalProps {
   interviewId: string;
@@ -13,30 +14,50 @@ interface QueryModalProps {
 export default function QueryModal({ interviewId, interviewTitle, onClose }: QueryModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const { mutateAsync } = useSubmitQuery();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !message) return;
+    if (!name || !email || !phone || !message) {
+      toast.warning('Please fill in all mandatory fields');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('sender_name', name);
+    formData.append('sender_email', email);
+    formData.append('phone_number', phone);
+    formData.append('message', message);
+    if (image) {
+      formData.append('image', image);
+    }
+    if (file) {
+      formData.append('file', file);
+    }
 
     setStatus('loading');
     try {
-      await mutateAsync({ interviewId, data: { sender_name: name, sender_email: email, message } });
+      await mutateAsync({ interviewId, formData });
       setStatus('success');
+      toast.success('Query sent successfully!');
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch (err) {
       setStatus('error');
+      toast.error('Failed to send query. Please try again.');
     }
   };
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div className="modal-content" style={{ maxWidth: '500px', width: '90%' }}>
         <div className="modal-header">
           <div>
             <h2>Send a Query</h2>
@@ -52,15 +73,15 @@ export default function QueryModal({ interviewId, interviewTitle, onClose }: Que
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="modal-body">
+            <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {status === 'error' && (
-                <div className="form-error" style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#FFEBE6' }}>
+                <div className="form-error" style={{ padding: '0.5rem', backgroundColor: '#FFEBE6', color: 'red', borderRadius: '4px' }}>
                   Failed to send. Please try again.
                 </div>
               )}
               
               <div className="form-group">
-                <label>Your Name</label>
+                <label>Your Name *</label>
                 <input 
                   type="text" 
                   value={name} 
@@ -71,7 +92,7 @@ export default function QueryModal({ interviewId, interviewTitle, onClose }: Que
               </div>
               
               <div className="form-group">
-                <label>Your Email</label>
+                <label>Your Email *</label>
                 <input 
                   type="email" 
                   value={email} 
@@ -79,9 +100,19 @@ export default function QueryModal({ interviewId, interviewTitle, onClose }: Que
                   required 
                 />
               </div>
+
+              <div className="form-group">
+                <label>Your Phone Number *</label>
+                <input 
+                  type="tel" 
+                  value={phone} 
+                  onChange={(e) => setPhone(e.target.value)} 
+                  required 
+                />
+              </div>
               
               <div className="form-group">
-                <label>Message</label>
+                <label>Message *</label>
                 <textarea 
                   rows={4} 
                   value={message} 
@@ -89,6 +120,24 @@ export default function QueryModal({ interviewId, interviewTitle, onClose }: Que
                   required 
                   minLength={10}
                 ></textarea>
+              </div>
+
+              <div className="form-group">
+                <label>Upload Image (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Upload Document File (Optional)</label>
+                <input 
+                  type="file" 
+                  accept=".pdf,.doc,.docx,.txt" 
+                  onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                />
               </div>
             </div>
             

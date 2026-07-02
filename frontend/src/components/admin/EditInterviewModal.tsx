@@ -5,6 +5,8 @@ import { useUpdateInterview } from '@/hooks/useAdmin';
 import { Interview } from '@/types';
 import { X, Plus, Trash2 } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+
 interface EditInterviewModalProps {
   interview: Interview;
   onClose: () => void;
@@ -54,9 +56,11 @@ export default function EditInterviewModal({ interview, onClose }: EditInterview
           questions: questions.map(q => ({ question_text: q.text, order_index: q.order_index }))
         }
       });
+      toast.success('Interview Questions updated successfully!');
       onClose();
     } catch (err) {
       setStatus('error');
+      toast.error('Failed to update interview. Please try again.');
     }
   };
 

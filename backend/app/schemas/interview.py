@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from uuid import UUID
 from typing import Optional
+from .query import QueryOut
 
 
 class QuestionIn(BaseModel):
@@ -38,6 +39,7 @@ class InterviewOut(BaseModel):
     about: Optional[str]
     created_at: datetime
     questions: list[QuestionOut] = []
+    queries: list[QueryOut] = []
     
     model_config = ConfigDict(from_attributes=True)
 

@@ -9,6 +9,8 @@ from ..core.db import get_db
 from ..core.deps import require_admin
 from ..models.user import User
 from ..models.interview import Interview, InterviewQuestion
+from ..models.query import Query as DBQuery
+from ..models.query_reply import QueryReply
 from ..schemas.interview import (
     InterviewCreate, InterviewUpdate, InterviewOut, InterviewListResponse, QuestionIn
 )
@@ -21,7 +23,10 @@ async def list_interviews(
     topic: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(Interview).options(selectinload(Interview.questions))
+    query = select(Interview).options(
+        selectinload(Interview.questions),
+        selectinload(Interview.queries).selectinload(DBQuery.replies).selectinload(QueryReply.user)
+    )
     
     if topic:
         query = query.where(Interview.topic == topic)
@@ -48,7 +53,10 @@ async def get_interview(
 ):
     result = await db.execute(
         select(Interview)
-        .options(selectinload(Interview.questions))
+        .options(
+            selectinload(Interview.questions),
+            selectinload(Interview.queries).selectinload(DBQuery.replies).selectinload(QueryReply.user)
+        )
         .where(Interview.id == interview_id)
     )
     interview = result.scalar_one_or_none()
@@ -91,7 +99,10 @@ async def create_interview(
     
     result = await db.execute(
         select(Interview)
-        .options(selectinload(Interview.questions))
+        .options(
+            selectinload(Interview.questions),
+            selectinload(Interview.queries).selectinload(DBQuery.replies).selectinload(QueryReply.user)
+        )
         .where(Interview.id == interview.id)
     )
     interview = result.scalar_one()
@@ -146,7 +157,10 @@ async def update_interview(
     # Re-fetch with questions loaded
     result = await db.execute(
         select(Interview)
-        .options(selectinload(Interview.questions))
+        .options(
+            selectinload(Interview.questions),
+            selectinload(Interview.queries).selectinload(DBQuery.replies).selectinload(QueryReply.user)
+        )
         .where(Interview.id == interview_id)
     )
     interview = result.scalar_one()

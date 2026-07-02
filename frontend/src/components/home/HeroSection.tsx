@@ -12,14 +12,7 @@ export default function HeroSection() {
             The most comprehensive resource for Veeva Vault professionals.
             Explore interview questions, track releases, and stay ahead.
           </p>
-          <div className="hero-actions">
-            <Link href="/interviews" className="btn btn-accent">
-              Explore Interview Questions
-            </Link>
-            <Link href="/interviews" className="btn btn-outline-white">
-              Browse Topics
-            </Link>
-          </div>
+
         </div>
         <div className="hero-stats">
           <div className="stat-item">
