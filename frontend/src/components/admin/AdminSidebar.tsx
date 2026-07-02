@@ -3,10 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, FileText, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, LogOut, X } from 'lucide-react';
 import '@/css/Admin.css';
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
@@ -19,7 +24,14 @@ export default function AdminSidebar() {
   ];
 
   return (
-    <aside className="admin-sidebar">
+    <aside className={`admin-sidebar ${isOpen ? 'open' : ''}`}>
+      <div className="admin-sidebar-header">
+        <h3>Admin Portal</h3>
+        <button className="sidebar-close-btn" onClick={onClose} aria-label="Close Sidebar">
+          <X size={20} />
+        </button>
+      </div>
+
       <nav className="admin-sidebar-nav">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -29,6 +41,7 @@ export default function AdminSidebar() {
               key={item.href} 
               href={item.href} 
               className={`admin-nav-link ${isActive ? 'active' : ''}`}
+              onClick={onClose}
             >
               <Icon size={20} />
               {item.label}
@@ -43,7 +56,10 @@ export default function AdminSidebar() {
           <div className="admin-sidebar-email">{user?.email}</div>
         </div>
         <button 
-          onClick={logout} 
+          onClick={() => {
+            onClose();
+            logout();
+          }} 
           className="btn btn-outline-white" 
           style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
         >
