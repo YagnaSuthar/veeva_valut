@@ -4,31 +4,24 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Menu, X, ChevronDown } from 'lucide-react';
-import { useInterviewList } from '@/hooks/useInterviews';
+import { Menu, X } from 'lucide-react';
 import '@/css/Navbar.css';
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileQueryOpen, setIsMobileQueryOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-    setIsMobileQueryOpen(false);
   };
-
-  const { data: allData } = useInterviewList();
-  const uniqueTopics = Array.from(
-    new Set((allData?.interviews || []).map((i) => i.topic))
-  ).sort();
 
   const links = [
     { href: '/', label: 'Home' },
     { href: '/interviews', label: 'Interviews' },
     { href: '/articles', label: 'Articles' },
     { href: '/release-notes', label: 'Release Notes' },
+    { href: '/ask-query', label: 'Ask Query' },
   ];
 
   if (isAdmin) {
@@ -53,24 +46,6 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-
-          {uniqueTopics.length > 0 && (
-            <div className="nav-dropdown">
-              <button className="nav-dropdown-btn">
-                Ask Query <ChevronDown size={14} />
-              </button>
-              <div className="nav-dropdown-content">
-                {uniqueTopics.map((topic) => (
-                  <Link
-                    key={topic}
-                    href={`/interviews?topic=${encodeURIComponent(topic)}&ask=true`}
-                  >
-                    {topic}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
         </nav>
 
         <div className="navbar-actions">
@@ -106,34 +81,6 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          
-          {uniqueTopics.length > 0 && (
-            <div>
-              <button 
-                className="nav-dropdown-btn" 
-                onClick={() => setIsMobileQueryOpen(!isMobileQueryOpen)}
-                style={{ padding: '0.75rem 0', width: '100%', justifyContent: 'space-between' }}
-              >
-                <span>Ask Query Topics</span>
-                <ChevronDown size={14} style={{ transform: isMobileQueryOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-              </button>
-              {isMobileQueryOpen && (
-                <div className="mobile-dropdown-list">
-                  {uniqueTopics.map((topic) => (
-                    <Link
-                      key={topic}
-                      href={`/interviews?topic=${encodeURIComponent(topic)}&ask=true`}
-                      className="nav-link"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      style={{ fontSize: '0.9rem', color: 'var(--brand-primary)' }}
-                    >
-                      {topic}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
     </header>

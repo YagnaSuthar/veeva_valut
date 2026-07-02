@@ -224,6 +224,15 @@
   flex-shrink: 0;
 }
 
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 2rem);
+  width: 100%;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
 .form-group {
   margin-bottom: 1rem;
 }

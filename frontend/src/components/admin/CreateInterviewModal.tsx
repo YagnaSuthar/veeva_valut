@@ -56,12 +56,12 @@ export default function CreateInterviewModal({ onClose }: CreateInterviewModalPr
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h2>Create Interview</h2>
-          <button className="modal-close" onClick={onClose}><X size={24} /></button>
-        </div>
-        
         <form onSubmit={handleSubmit}>
+          <div className="modal-header">
+            <h2>Create Interview</h2>
+            <button className="modal-close" onClick={onClose}><X size={24} /></button>
+          </div>
+          
           <div className="modal-body">
             {status === 'error' && (
               <div className="form-error" style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#FFEBE6' }}>

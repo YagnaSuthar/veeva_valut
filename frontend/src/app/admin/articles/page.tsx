@@ -7,7 +7,7 @@ import {
   useUpdateArticle,
   useDeleteArticle,
 } from '@/hooks/useArticles';
-import { Plus, Edit2, Trash2, BookOpen } from 'lucide-react';
+import { Plus, Edit2, Trash2, BookOpen, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminArticlesPage() {
@@ -198,8 +198,9 @@ export default function AdminArticlesPage() {
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '600px' }}>
             <form onSubmit={handleSubmit}>
-              <div className="modal-header">
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2>{editingId ? 'Edit Article' : 'Create Article'}</h2>
+                <button type="button" className="btn-icon" onClick={closeModal}><X size={20} /></button>
               </div>
               <div className="modal-body">
                 <div className="form-group">

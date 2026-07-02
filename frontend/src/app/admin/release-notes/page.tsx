@@ -10,7 +10,7 @@ import {
   useUpdateReleaseNoteDocument,
   useDeleteReleaseNoteDocument,
 } from '@/hooks/useReleaseNotes';
-import { Plus, Edit2, Trash2, FilePlus, ChevronDown, ChevronUp, Folder } from 'lucide-react';
+import { Plus, Edit2, Trash2, FilePlus, ChevronDown, ChevronUp, Folder, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function AdminReleaseNotesPage() {
@@ -232,8 +232,9 @@ export default function AdminReleaseNotesPage() {
         <div className="modal-overlay">
           <div className="modal-content">
             <form onSubmit={handleFolderSubmit}>
-              <div className="modal-header">
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2>{editingFolderId ? 'Edit Release Folder' : 'Create Release Folder'}</h2>
+                <button type="button" className="btn-icon" onClick={closeFolderModal}><X size={20} /></button>
               </div>
               <div className="modal-body">
                 <div className="form-group">
@@ -259,8 +260,9 @@ export default function AdminReleaseNotesPage() {
         <div className="modal-overlay">
           <div className="modal-content">
             <form onSubmit={handleDocSubmit}>
-              <div className="modal-header">
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2>{editingDocId ? 'Edit Document' : 'Add Document'}</h2>
+                <button type="button" className="btn-icon" onClick={closeDocModal}><X size={20} /></button>
               </div>
               <div className="modal-body">
                 <div className="form-group">

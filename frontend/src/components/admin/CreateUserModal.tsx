@@ -68,17 +68,17 @@ export default function CreateUserModal({ onClose }: CreateUserModalProps) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <div>
-            <h2>Create User</h2>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-              Credentials will be emailed to the user automatically.
-            </p>
-          </div>
-          <button className="modal-close" onClick={onClose}><X size={24} /></button>
-        </div>
-        
         <form onSubmit={handleSubmit}>
+          <div className="modal-header">
+            <div>
+              <h2>Create User</h2>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                Credentials will be emailed to the user automatically.
+              </p>
+            </div>
+            <button className="modal-close" onClick={onClose} type="button"><X size={24} /></button>
+          </div>
+          
           <div className="modal-body">
             {submitStatus === 'error' && (
               <div className="form-error" style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: 6, background: '#FFEBE6' }}>
