@@ -19,6 +19,7 @@ export interface Interview {
   about: string | null
   created_at: string
   questions: Question[]
+  queries?: Query[]
 }
 
 export interface Query {
@@ -26,8 +27,12 @@ export interface Query {
   interview_id: string
   sender_name: string
   sender_email: string
+  phone_number?: string
   message: string
+  image_url?: string | null
+  file_url?: string | null
   created_at: string
+  replies?: any[]
 }
 
 export interface InterviewListResponse {
