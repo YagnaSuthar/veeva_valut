@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Outer Orange 'V' shape -->
+  <path d="M 10,5 L 50,95 L 90,5 L 70,5 L 50,48 L 30,5 Z" fill="#fd7e14" />
+  <!-- Inner Grey Triangle -->
+  <polygon points="36,5 64,5 50,38" fill="#8a95a5" />
+</svg>

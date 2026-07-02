@@ -38,8 +38,8 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="container navbar-container">
-        <Link href="/" className="navbar-logo">
-          <div className="navbar-accent-square"></div>
+        <Link href="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <img src="/logo.svg" alt="Veeva Vault Hub Logo" style={{ width: '28px', height: '28px' }} />
           Veeva Vault Hub
         </Link>
 

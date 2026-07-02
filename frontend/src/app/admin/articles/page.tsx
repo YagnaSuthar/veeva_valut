@@ -15,6 +15,7 @@ export default function AdminArticlesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -77,11 +78,25 @@ export default function AdminArticlesPage() {
       try {
         await deleteArtMut.mutateAsync(id);
         toast.success('Article deleted successfully');
+        // Reset slide index if current active index is out of bounds after deletion
+        if (activeSlideIndex >= articles.length - 1) {
+          setActiveSlideIndex(Math.max(0, articles.length - 2));
+        }
       } catch (err) {
         toast.error('Failed to delete article');
       }
     }
   };
+
+  const handlePrevSlide = () => {
+    setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextSlide = () => {
+    setActiveSlideIndex((prev) => Math.min(articles.length - 1, prev + 1));
+  };
+
+  const currentArt = articles[activeSlideIndex];
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -99,46 +114,83 @@ export default function AdminArticlesPage() {
           <p>No articles found. Create one to get started!</p>
         </div>
       ) : (
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Topic</th>
-                <th>Excerpt</th>
-                <th>Read Time</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {articles.map((art: any) => (
-                <tr key={art.id}>
-                  <td style={{ fontWeight: 600 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <BookOpen size={16} style={{ color: 'var(--brand-primary)' }} />
-                      {art.title}
-                    </div>
-                  </td>
-                  <td>
-                    <span className="badge badge-accent">{art.topic}</span>
-                  </td>
-                  <td>{art.excerpt}</td>
-                  <td>{art.read_time}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
-                      <button className="btn btn-outline" style={{ padding: '0.35rem 0.6rem' }} onClick={() => openEdit(art)}>
-                        <Edit2 size={14} />
-                      </button>
-                      <button className="btn btn-outline" style={{ padding: '0.35rem 0.6rem', color: 'red' }} onClick={() => handleDelete(art.id, art.title)}>
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          {/* Desktop Table view */}
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Topic</th>
+                  <th>Excerpt</th>
+                  <th>Read Time</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {articles.map((art: any) => (
+                  <tr key={art.id}>
+                    <td style={{ fontWeight: 600 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <BookOpen size={16} style={{ color: 'var(--brand-primary)' }} />
+                        {art.title}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge badge-accent">{art.topic}</span>
+                    </td>
+                    <td>{art.excerpt}</td>
+                    <td>{art.read_time}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+                        <button className="btn btn-outline" style={{ padding: '0.35rem 0.6rem' }} onClick={() => openEdit(art)}>
+                          <Edit2 size={14} />
+                        </button>
+                        <button className="btn btn-outline" style={{ padding: '0.35rem 0.6rem', color: 'red' }} onClick={() => handleDelete(art.id, art.title)}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Responsive Slider view for Mobile */}
+          {currentArt && (
+            <div className="articles-slider-mobile">
+              <div className="article-slide-card">
+                <span className="badge badge-accent" style={{ marginBottom: '0.5rem' }}>{currentArt.topic}</span>
+                <h3>{currentArt.title}</h3>
+                <p>{currentArt.excerpt}</p>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                  <strong>Read Time:</strong> {currentArt.read_time}
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button className="btn btn-outline" style={{ flexGrow: 1, padding: '0.5rem' }} onClick={() => openEdit(currentArt)}>
+                    <Edit2 size={14} style={{ marginRight: '0.25rem' }} /> Edit
+                  </button>
+                  <button className="btn btn-outline" style={{ flexGrow: 1, padding: '0.5rem', color: 'red' }} onClick={() => handleDelete(currentArt.id, currentArt.title)}>
+                    <Trash2 size={14} style={{ marginRight: '0.25rem' }} /> Delete
+                  </button>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
+                <button className="btn btn-outline" onClick={handlePrevSlide} disabled={activeSlideIndex === 0} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                  Prev
+                </button>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                  {activeSlideIndex + 1} of {articles.length}
+                </span>
+                <button className="btn btn-outline" onClick={handleNextSlide} disabled={activeSlideIndex === articles.length - 1} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Article Modal */}

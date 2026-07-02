@@ -22,6 +22,7 @@ export default function InterviewsTable({ interviews, isLoading }: InterviewsTab
   const [expandedInterviewId, setExpandedInterviewId] = useState<string | null>(null);
   const [expandedQueryId, setExpandedQueryId] = useState<string | null>(null);
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const searchParams = useSearchParams();
   const router = useRouter();
   const replyMut = useReplyToQuery();
@@ -57,6 +58,14 @@ export default function InterviewsTable({ interviews, isLoading }: InterviewsTab
     } catch (err) {
       toast.error('Failed to post answer.');
     }
+  };
+
+  const handlePrevSlide = () => {
+    setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextSlide = () => {
+    setActiveSlideIndex((prev) => Math.min(interviews.length - 1, prev + 1));
   };
 
   if (isLoading) {
@@ -95,9 +104,12 @@ export default function InterviewsTable({ interviews, isLoading }: InterviewsTab
     );
   }
 
+  const currentInt = interviews[activeSlideIndex];
+
   return (
     <>
-      <div className="table-container">
+      {/* Desktop Table view */}
+      <div className="table-container desktop-view">
         <table className="data-table">
           <thead>
             <tr>
@@ -357,6 +369,151 @@ export default function InterviewsTable({ interviews, isLoading }: InterviewsTab
           </tbody>
         </table>
       </div>
+
+      {/* Mobile Slider view */}
+      {currentInt && (
+        <div className="mobile-slider-view">
+          <div className="card" style={{ padding: '1.5rem', marginBottom: '1rem' }}>
+            <span className="badge badge-accent" style={{ marginBottom: '0.5rem' }}>{currentInt.topic}</span>
+            
+            <h3 style={{ margin: '0.25rem 0 0.5rem', fontSize: '1.25rem' }}>
+              <Link href={`/interviews/${currentInt.id}`} className="interview-title-link">
+                {currentInt.title}
+              </Link>
+            </h3>
+
+            {currentInt.about && (
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                {truncate(currentInt.about, 120)}
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <button
+                className="btn btn-outline"
+                style={{ flexGrow: 1, padding: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}
+                onClick={() => toggleQuestions(currentInt.id)}
+              >
+                {expandedInterviewId === currentInt.id ? 'Hide Details' : `Show Details (${currentInt.questions?.length || 0}Q / ${currentInt.queries?.length || 0}Qy)`}
+              </button>
+              <button 
+                className="btn btn-primary" 
+                style={{ flexGrow: 1, padding: '0.4rem', fontSize: '0.8rem' }} 
+                onClick={() => setQueryModalData({ id: currentInt.id, title: currentInt.title })}
+              >
+                Ask a Question
+              </button>
+            </div>
+
+            {/* Slider Nested Questions / Queries */}
+            {expandedInterviewId === currentInt.id && (
+              <div style={{ borderTop: '1px solid var(--border)', marginTop: '1rem', paddingTop: '1rem' }}>
+                {/* Questions Section */}
+                {currentInt.questions && currentInt.questions.length > 0 && (
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brand-dark)', marginBottom: '0.5rem' }}>Questions List:</h5>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {currentInt.questions.map((q, idx) => (
+                        <div key={q.id} style={{ fontSize: '0.8rem', display: 'flex', gap: '0.5rem' }}>
+                          <span style={{ color: 'var(--brand-accent)', fontWeight: 700 }}>{idx + 1}.</span>
+                          <div>{q.question_text}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Queries Section */}
+                <div>
+                  <h5 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--brand-dark)', marginBottom: '0.5rem' }}>
+                    Queries ({currentInt.queries?.length || 0}):
+                  </h5>
+                  {(!currentInt.queries || currentInt.queries.length === 0) ? (
+                    <p style={{ fontStyle: 'italic', fontSize: '0.8rem', color: 'var(--text-muted)' }}>No queries asked yet.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {currentInt.queries.map((query: any) => {
+                        const isQueryExpanded = expandedQueryId === query.id;
+                        return (
+                          <div key={query.id} style={{ border: '1px solid var(--border)', borderRadius: '4px', padding: '0.5rem', backgroundColor: '#fafbfc' }}>
+                            <div 
+                              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontSize: '0.8rem' }}
+                              onClick={() => setExpandedQueryId(isQueryExpanded ? null : query.id)}
+                            >
+                              <div><strong>{query.sender_name}</strong>: {truncate(query.message, 40)}</div>
+                              {isQueryExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            </div>
+
+                            {isQueryExpanded && (
+                              <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                                <p style={{ fontSize: '0.8rem', margin: '0 0 0.5rem 0', color: 'var(--text-body)' }}>{query.message}</p>
+                                
+                                {/* Replies list */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                                  {query.replies && query.replies.length > 0 ? (
+                                    query.replies.map((reply: any) => (
+                                      <div key={reply.id} style={{ display: 'flex', gap: '0.25rem', paddingLeft: '0.25rem', fontSize: '0.75rem' }}>
+                                        <CornerDownRight size={12} style={{ color: 'var(--text-muted)' }} />
+                                        <div style={{ backgroundColor: 'var(--surface-soft)', padding: '0.4rem', borderRadius: '4px', flexGrow: 1 }}>
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, fontSize: '0.7rem', marginBottom: '0.15rem' }}>
+                                            <span>{reply.user_name}</span>
+                                            <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>{new Date(reply.created_at).toLocaleDateString()}</span>
+                                          </div>
+                                          <p style={{ margin: 0 }}>{reply.message}</p>
+                                        </div>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p style={{ fontStyle: 'italic', fontSize: '0.75rem', color: 'var(--text-muted)' }}>No answers yet.</p>
+                                  )}
+                                </div>
+
+                                {/* Reply Input */}
+                                {user ? (
+                                  <form onSubmit={(e) => handleReplySubmit(e, query.id)} style={{ display: 'flex', gap: '0.25rem' }}>
+                                    <input 
+                                      type="text" 
+                                      placeholder="Reply..." 
+                                      value={replyTexts[query.id] || ''} 
+                                      onChange={(e) => setReplyTexts(prev => ({ ...prev, [query.id]: e.target.value }))}
+                                      required 
+                                      style={{ flexGrow: 1, padding: '0.2rem 0.4rem', fontSize: '0.75rem', border: '1px solid var(--border)', borderRadius: '4px' }}
+                                    />
+                                    <button type="submit" className="btn btn-primary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
+                                      Send
+                                    </button>
+                                  </form>
+                                ) : (
+                                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>
+                                    Please <Link href="/login" style={{ textDecoration: 'underline' }}>Login</Link> to reply.
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Pagination Controls */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button className="btn btn-outline" onClick={handlePrevSlide} disabled={activeSlideIndex === 0} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+              Prev
+            </button>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+              {activeSlideIndex + 1} of {interviews.length}
+            </span>
+            <button className="btn btn-outline" onClick={handleNextSlide} disabled={activeSlideIndex === interviews.length - 1} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {queryModalData && (
         <QueryModal 

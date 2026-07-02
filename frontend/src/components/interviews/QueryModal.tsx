@@ -73,7 +73,7 @@ export default function QueryModal({ interviewId, interviewTitle, onClose }: Que
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {status === 'error' && (
                 <div className="form-error" style={{ padding: '0.5rem', backgroundColor: '#FFEBE6', color: 'red', borderRadius: '4px' }}>
                   Failed to send. Please try again.

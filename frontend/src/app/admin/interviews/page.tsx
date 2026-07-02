@@ -16,16 +16,34 @@ export default function AdminInterviewsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
   const [expandedQueriesId, setExpandedQueriesId] = useState<string | null>(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const handleDelete = (id: string, title: string) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
       deleteInterview(id);
+      // Reset slide index if out of bounds after deletion
+      if (data?.interviews && activeSlideIndex >= data.interviews.length - 1) {
+        setActiveSlideIndex(Math.max(0, data.interviews.length - 2));
+      }
     }
   };
 
   const toggleQueries = (id: string) => {
     setExpandedQueriesId(prev => (prev === id ? null : id));
   };
+
+  const handlePrevSlide = () => {
+    setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextSlide = () => {
+    if (data?.interviews) {
+      setActiveSlideIndex((prev) => Math.min(data.interviews.length - 1, prev + 1));
+    }
+  };
+
+  const interviews = data?.interviews || [];
+  const currentInt = interviews[activeSlideIndex];
 
   return (
     <div>
@@ -36,75 +54,134 @@ export default function AdminInterviewsPage() {
         </button>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Topic</th>
-                <th>Questions</th>
-                <th>Created</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>Loading interviews...</td>
-                </tr>
-              ) : !data?.interviews?.length ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                    No interviews yet. Create your first one!
-                  </td>
-                </tr>
-              ) : (
-                data.interviews.map((interview) => (
-                  <React.Fragment key={interview.id}>
-                    <tr>
-                      <td style={{ fontWeight: 600 }}>{interview.title}</td>
-                      <td><span className="badge badge-accent">{interview.topic}</span></td>
-                      <td>{interview.questions?.length || 0}</td>
-                      <td>{formatDate(interview.created_at)}</td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                          <button
-                            className="btn-icon"
-                            title="View Queries"
-                            onClick={() => toggleQueries(interview.id)}
-                            style={{ color: expandedQueriesId === interview.id ? 'var(--brand-primary)' : undefined }}
-                          >
-                            <MessageSquare size={16} />
-                          </button>
-                          <button className="btn-icon" title="Edit" onClick={() => setEditingInterview(interview)}>
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            className="btn-icon"
-                            title="Delete"
-                            onClick={() => handleDelete(interview.id, interview.title)}
-                            disabled={isDeleting}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    {expandedQueriesId === interview.id && (
+      {isLoading ? (
+        <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>Loading interviews...</div>
+      ) : !interviews.length ? (
+        <div className="card" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+          No interviews yet. Create your first one!
+        </div>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="card desktop-view" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Topic</th>
+                    <th>Questions</th>
+                    <th>Created</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {interviews.map((interview) => (
+                    <React.Fragment key={interview.id}>
                       <tr>
-                        <td colSpan={5} style={{ padding: 0, background: 'var(--surface-2, #f8f9fa)' }}>
-                          <QueriesViewer interviewId={interview.id} />
+                        <td style={{ fontWeight: 600 }}>{interview.title}</td>
+                        <td><span className="badge badge-accent">{interview.topic}</span></td>
+                        <td>{interview.questions?.length || 0}</td>
+                        <td>{formatDate(interview.created_at)}</td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                            <button
+                              className="btn-icon"
+                              title="View Queries"
+                              onClick={() => toggleQueries(interview.id)}
+                              style={{ color: expandedQueriesId === interview.id ? 'var(--brand-primary)' : undefined }}
+                            >
+                              <MessageSquare size={16} />
+                            </button>
+                            <button className="btn-icon" title="Edit" onClick={() => setEditingInterview(interview)}>
+                              <Edit2 size={16} />
+                            </button>
+                            <button
+                              className="btn-icon"
+                              title="Delete"
+                              onClick={() => handleDelete(interview.id, interview.title)}
+                              disabled={isDeleting}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      {expandedQueriesId === interview.id && (
+                        <tr>
+                          <td colSpan={5} style={{ padding: 0, background: 'var(--surface-2, #f8f9fa)' }}>
+                            <QueriesViewer interviewId={interview.id} />
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Slider View */}
+          {currentInt && (
+            <div className="mobile-slider-view">
+              <div className="card" style={{ padding: '1.5rem', marginBottom: '1rem' }}>
+                <span className="badge badge-accent" style={{ marginBottom: '0.5rem' }}>{currentInt.topic}</span>
+                <h3 style={{ margin: '0.25rem 0 0.75rem', fontSize: '1.25rem' }}>{currentInt.title}</h3>
+                
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1.25rem' }}>
+                  <div><strong>Questions Count:</strong> {currentInt.questions?.length || 0}</div>
+                  <div><strong>Created At:</strong> {formatDate(currentInt.created_at)}</div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                  <button
+                    className="btn btn-outline"
+                    style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onClick={() => toggleQueries(currentInt.id)}
+                    title="View Queries"
+                  >
+                    <MessageSquare size={14} style={{ marginRight: '0.25rem' }} /> Queries
+                  </button>
+                  <button 
+                    className="btn btn-outline" 
+                    style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
+                    onClick={() => setEditingInterview(currentInt)}
+                  >
+                    <Edit2 size={14} style={{ marginRight: '0.25rem' }} /> Edit
+                  </button>
+                  <button 
+                    className="btn btn-outline" 
+                    style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'red' }} 
+                    onClick={() => handleDelete(currentInt.id, currentInt.title)}
+                    disabled={isDeleting}
+                  >
+                    <Trash2 size={14} style={{ marginRight: '0.25rem' }} /> Delete
+                  </button>
+                </div>
+
+                {expandedQueriesId === currentInt.id && (
+                  <div style={{ borderTop: '1px solid var(--border)', marginTop: '1.25rem', paddingTop: '1rem' }}>
+                    <QueriesViewer interviewId={currentInt.id} />
+                  </div>
+                )}
+              </div>
+
+              {/* Slider Pagination Controls */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <button className="btn btn-outline" onClick={handlePrevSlide} disabled={activeSlideIndex === 0} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                  Prev
+                </button>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                  {activeSlideIndex + 1} of {interviews.length}
+                </span>
+                <button className="btn btn-outline" onClick={handleNextSlide} disabled={activeSlideIndex === interviews.length - 1} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {isCreateModalOpen && <CreateInterviewModal onClose={() => setIsCreateModalOpen(false)} />}
       {editingInterview && <EditInterviewModal interview={editingInterview} onClose={() => setEditingInterview(null)} />}
